@@ -1,4 +1,4 @@
-package org.chv.database;
+package org.chv.DataBase;
 
 import java.io.IOException;
 import java.sql.CallableStatement;
@@ -42,7 +42,7 @@ public class DataBase {
         //parametrage du logger
         try {
             logger.setUseParentHandlers(false);
-            FileHandler fh = new FileHandler("ANRouteDB%u.log", 0, 1, true);
+            FileHandler fh = new FileHandler("ANLibDB%u.log", 0, 1, true);
             fh.setFormatter(new SimpleFormatter());
             logger.addHandler(fh);
         } catch (IOException ioe) {
@@ -278,7 +278,7 @@ public class DataBase {
 
 
     /****************************************
-     * Lister les docuents de la BAL
+     * Lister les docuents de la BAL ORU
      * @return 
      ****************************************/
     public ResultSet CallLISTEBALDOC() {
@@ -298,7 +298,8 @@ public class DataBase {
                     "doc.numdocexterne," +
                     "doc.nomdocument," +
                     "bal.IDMESSAGE," +
-                    "doc.idetatdoc " +
+                    "doc.idetatdoc, " +
+                    "bal.iddocument " +
                     "FROM tblbal_doc bal, tbldocuments doc, pa_pat pat " +
                     "WHERE bal.GEN='0' " +
                     "AND bal.IDDOCUMENT=doc.IDDOCUMENT " +
@@ -309,7 +310,46 @@ public class DataBase {
             stat.close();
             return result;
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Erreur requete GETDOCUMENT", ex);
+            logger.log(Level.SEVERE, "Erreur requete CallListBalDocORU", ex);
+        }
+        return null;
+    }
+
+    
+      /****************************************
+     * Lister les docuents de la BAL MDM
+     * @return 
+     ****************************************/
+    public ResultSet CallLISTEBALDOCMDM() {
+        String sql="SELECT " +
+                    "pat.etc_nom," +
+                    "pat.etc_prn," +
+                    "pat.etc_nom_mar," +
+                    "pat.etc_ddn," +
+                    "pat.etc_sex," +
+                    "doc.IPP," +
+                    "doc.IEP," +
+                    "doc.idlocalisation," +
+                    "date_format( doc.datecreation,'%Y-%m-%d %H:%i:%s')," +
+                    "doc.aliasdoc," +
+                    "doc.descrdoc," +
+                    "doc.auteur," +
+                    "doc.numdocexterne," +
+                    "doc.nomdocument," +
+                    "bal.IDMESSAGE," +
+                    "doc.idetatdoc, " +
+                    "bal.iddocument " +
+                    "FROM tblbal_doc bal, tbldocuments doc, pa_pat pat " +
+                    "WHERE bal.GENMDM='0' " +
+                    "AND bal.IDDOCUMENT=doc.IDDOCUMENT " +
+                    "and doc.ipp= pat.pat_ipp";
+          try {
+            stat = connexion.createStatement();
+            result = stat.executeQuery(sql);
+            stat.close();
+            return result;
+        } catch (SQLException ex) {
+            logger.log(Level.SEVERE, "Erreur requete CalllistBalDocMDM", ex);
         }
         return null;
     }
@@ -317,7 +357,7 @@ public class DataBase {
     
     
        /****************************************
-     * Lister les docuents de la BAL
+     * Lister les docuents de la BAL ORU
      * @param nummessage
      ****************************************/
     public void CallVALIDEBALDOC ( int nummessage ) {
@@ -327,12 +367,25 @@ public class DataBase {
             stat.executeUpdate(sql);
             stat.close();
         } catch (SQLException ex) {
-            logger.log(Level.SEVERE, "Erreur requete GETDOCUMENT", ex);
+            logger.log(Level.SEVERE, "Erreur requete CallValiderBalDocORU", ex);
         }
     }
     
     
-    
+      /****************************************
+     * Lister les docuents de la BAL MDM
+     * @param nummessage
+     ****************************************/
+    public void CallVALIDEBALDOCMDM ( int nummessage ) {
+        String sql="UPDATE TBLBAL_DOC SET genMDM='1', dategen=sysdate() WHERE idmessage='"+nummessage+"'";
+          try {
+            stat =connexion.createStatement();
+            stat.executeUpdate(sql);
+            stat.close();
+        } catch (SQLException ex) {
+            logger.log(Level.SEVERE, "Erreur requete CalValiderBalDocMDM", ex);
+        }
+    }  
     
     /****************************************
      * Liste des commentaire par filtre
