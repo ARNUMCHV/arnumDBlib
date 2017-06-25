@@ -377,7 +377,7 @@ public class DataBase {
      * @param nummessage
      ****************************************/
     public void CallVALIDEBALDOCMDM ( int nummessage ) {
-        String sql="UPDATE TBLBAL_DOC SET genMDM='1', dategen=sysdate() WHERE idmessage='"+nummessage+"'";
+        String sql="UPDATE TBLBAL_DOC SET genMDM='1', dategenMDM=sysdate() WHERE idmessage='"+nummessage+"'";
           try {
             stat =connexion.createStatement();
             stat.executeUpdate(sql);
